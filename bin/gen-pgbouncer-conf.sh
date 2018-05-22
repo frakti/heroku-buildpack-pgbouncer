@@ -2,6 +2,7 @@
 
 POSTGRES_URLS=${PGBOUNCER_URLS:-DATABASE_URL}
 POOL_MODE=${PGBOUNCER_POOL_MODE:-transaction}
+LISTEN_ADDR=${PGBOUNCER_LISTEN_ADDR:-127.0.0.1}
 SERVER_RESET_QUERY=${PGBOUNCER_SERVER_RESET_QUERY}
 n=1
 
@@ -34,7 +35,7 @@ EOFEOF
 
 cat > /app/vendor/pgbouncer/pgbouncer.ini << EOFEOF
 [pgbouncer]
-listen_addr = 127.0.0.1
+listen_addr = ${LISTEN_ADDR}
 listen_port = 6000
 auth_type = md5
 auth_file = /app/vendor/pgbouncer/users.txt
@@ -74,9 +75,9 @@ do
 
   if [ "$PGBOUNCER_PREPARED_STATEMENTS" == "false" ]
   then
-    export ${POSTGRES_URL}_PGBOUNCER=postgres://$DB_USER:$DB_PASS@127.0.0.1:6000/$CLIENT_DB_NAME?prepared_statements=false
+    export ${POSTGRES_URL}_PGBOUNCER=postgres://$DB_USER:$DB_PASS@${LISTEN_ADDR}:6000/$CLIENT_DB_NAME?prepared_statements=false
   else
-    export ${POSTGRES_URL}_PGBOUNCER=postgres://$DB_USER:$DB_PASS@127.0.0.1:6000/$CLIENT_DB_NAME
+    export ${POSTGRES_URL}_PGBOUNCER=postgres://$DB_USER:$DB_PASS@${LISTEN_ADDR}:6000/$CLIENT_DB_NAME
   fi
 
   cat >> /app/vendor/stunnel/stunnel-pgbouncer.conf << EOFEOF
